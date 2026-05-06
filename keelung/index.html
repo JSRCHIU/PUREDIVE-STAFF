@@ -585,7 +585,7 @@ function addWage() {
   S.wr.push(rec);
   // sync to Supabase
   var wageRow = {
-    id: String(rec.id), person: rec.person, type: rec.type,
+    person: rec.person, type: rec.type,
     detail: rec.detail, amount: rec.amount, date: rec.date, note: rec.note||'',
     paid: false, from_teach: rec.fromTeach||null,
     td_income: rec.td?rec.td.income:null, td_cost: rec.td?rec.td.cost:null, td_net: rec.td?rec.td.net:null
@@ -657,7 +657,7 @@ function addAssistRecord(a, teacherName, date) {
   };
   S.wr.push(arec);
   sbFetch('wages', 'POST', {
-    id: String(arec.id), person: a.name, type: '跟課',
+    person: a.name, type: '跟課',
     detail: detail.trim(), amount: a.fee, date: date,
     note: '來自 '+teacherName+' 的教學', paid: false, from_teach: teacherName
   }).catch(function(e){ console.error('addAssist sync', e); });
@@ -791,7 +791,7 @@ function addExp() {
   };
   S.er.push(erec);
   sbFetch('expenses', 'POST', {
-    id: String(erec.id), person: erec.person, desc: erec.desc,
+    person: erec.person, desc: erec.desc,
     amount: erec.amount, date: erec.date, note: erec.note||'',
     paid: false, file_name: erec.file||null
   }).catch(function(e){ console.error('addExp sync', e); });
