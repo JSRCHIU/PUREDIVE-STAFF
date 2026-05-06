@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PURE DIVE Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --text:#0f1923;
+  --muted:#6b7a8d;
+  --hint:#a8b4c0;
+  --border:#e4e9ee;
+  --bg:#f7f9fb;
+  --white:#ffffff;
+}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  -webkit-tap-highlight-color:transparent;
+}
+
+header{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.logo-text{
+  font-size:15px;
+  font-weight:600;
+  color:var(--text);
+  letter-spacing:-.01em;
+}
+.header-tag{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--hint);
+  letter-spacing:.07em;
+}
+
+.hero{
+  padding:36px 24px 28px;
+  max-width:480px;
+  margin:0 auto;
+}
+.hero-title{
+  font-size:24px;
+  font-weight:600;
+  color:var(--text);
+  letter-spacing:-.02em;
+  margin-bottom:6px;
+}
+.hero-desc{
+  font-size:14px;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.tabs{
+  max-width:480px;
+  margin:0 auto;
+  padding:0 16px 40px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.tab{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:22px 24px;
+  border-radius:12px;
+  text-decoration:none;
+  cursor:pointer;
+  transition:transform .12s, filter .12s;
+}
+.tab:active{
+  transform:scale(0.983);
+  filter:brightness(.94);
+}
+
+.tab-left{}
+.tab-en{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:.08em;
+  opacity:.65;
+  margin-bottom:5px;
+}
+.tab-name{
+  font-size:22px;
+  font-weight:600;
+  letter-spacing:-.01em;
+}
+.tab-arrow{
+  font-size:22px;
+  opacity:.5;
+}
+
+.tab-a{background:#0096E6;color:#fff;}
+.tab-b{background:#F5A623;color:#3D2800;}
+.tab-c{background:#e8ecf0;color:#9ca3af;cursor:default;}
+.tab-c:active{transform:none;filter:none;}
+.tab-c .tab-en{opacity:.5;}
+.tab-c .tab-arrow{opacity:.25;}
+.coming{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.06em;
+  background:rgba(0,0,0,.06);
+  padding:3px 8px;
+  border-radius:100px;
+  color:#9ca3af;
+}
+
+footer{
+  text-align:center;
+  padding:8px 20px 32px;
+  font-size:11px;
+  color:var(--hint);
+  font-family:'DM Mono',monospace;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-text">PURE DIVE Staff</div>
+  <div class="header-tag">INTERNAL</div>
+</header>
+
+<div class="hero">
+  <div class="hero-title">選擇據點</div>
+  <div class="hero-desc">工資記錄、代墊管理、財務結算</div>
+</div>
+
+<div class="tabs">
+
+  <a class="tab tab-a" href="/keelung/">
+    <div class="tab-left">
+      <div class="tab-en">KEELUNG</div>
+      <div class="tab-name">基隆 計算機</div>
+    </div>
+    <div class="tab-arrow">→</div>
+  </a>
+
+  <a class="tab tab-b" href="/kenting/">
+    <div class="tab-left">
+      <div class="tab-en">KENTING</div>
+      <div class="tab-name">墾丁 計算機</div>
+    </div>
+    <div class="tab-arrow">→</div>
+  </a>
+
+  <div class="tab tab-c">
+    <div class="tab-left">
+      <div class="tab-en">FINANCE</div>
+      <div class="tab-name">墾丁 收支總表</div>
+    </div>
+    <div class="coming">即將推出</div>
+  </div>
+
+</div>
+
+<footer>PURE DIVE © 2025 · Staff Internal Use Only</footer>
+
+</body>
+</html>
