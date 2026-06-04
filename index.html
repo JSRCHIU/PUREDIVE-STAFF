@@ -22,11 +22,43 @@ body{
   color:var(--text);
   min-height:100vh;
   -webkit-tap-highlight-color:transparent;
+  position:relative;
+}
+
+/* ── 全頁底圖 ── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  /* 把這裡的 YOUR_BASE64_HERE 換成你的圖片 base64 字串 */
+  /* 格式：url('data:image/png;base64,YOUR_BASE64_HERE') */
+  background-image: url('bg.png');
+  background-color: #1a2a3a;
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+/* ── 暗層 ── */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.52);
+  z-index:1;
+}
+
+header, .hero, .tabs, footer{
+  position:relative;
+  z-index:2;
 }
 
 header{
-  background:var(--white);
-  border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,0.15);
   padding:0 24px;
   height:52px;
   display:flex;
@@ -36,13 +68,13 @@ header{
 .logo-text{
   font-size:15px;
   font-weight:600;
-  color:var(--text);
+  color:#fff;
   letter-spacing:-.01em;
 }
 .header-tag{
   font-family:'DM Mono',monospace;
   font-size:10px;
-  color:var(--hint);
+  color:rgba(255,255,255,0.45);
   letter-spacing:.07em;
 }
 
@@ -54,13 +86,13 @@ header{
 .hero-title{
   font-size:24px;
   font-weight:600;
-  color:var(--text);
+  color:#fff;
   letter-spacing:-.02em;
   margin-bottom:6px;
 }
 .hero-desc{
   font-size:14px;
-  color:var(--muted);
+  color:rgba(255,255,255,0.6);
   line-height:1.6;
 }
 
@@ -82,6 +114,8 @@ header{
   text-decoration:none;
   cursor:pointer;
   transition:transform .12s, filter .12s;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
 }
 .tab:active{
   transform:scale(0.983);
@@ -109,6 +143,7 @@ header{
 .tab-a{background:#0096E6;color:#fff;}
 .tab-b{background:#F5A623;color:#3D2800;}
 .tab-d{background:#10B981;color:#fff;} /* 新增的綠色樣式 */
+.tab-e{background:#7C3AED;color:#fff;}
 .tab-c{background:#e8ecf0;color:#9ca3af;cursor:default;}
 .tab-c:active{transform:none;filter:none;}
 .tab-c .tab-en{opacity:.5;}
@@ -127,7 +162,7 @@ footer{
   text-align:center;
   padding:8px 20px 32px;
   font-size:11px;
-  color:var(--hint);
+  color:rgba(255,255,255,0.3);
   font-family:'DM Mono',monospace;
 }
 </style>
@@ -140,8 +175,8 @@ footer{
 </header>
 
 <div class="hero">
-  <div class="hero-title">選擇據點</div>
-  <div class="hero-desc">工資記錄、代墊管理、財務結算</div>
+  <div class="hero-title">點一點就弄好了</div>
+  <div class="hero-desc"></div>
 </div>
 
 <div class="tabs">
@@ -172,6 +207,15 @@ footer{
   </a>
 
   <!-- 順延至第四格 -->
+  <a class="tab tab-e" href="https://sdi-ow-exam-entry.vercel.app/" target="_blank" rel="noopener noreferrer">
+    <div class="tab-left">
+      <div class="tab-en">EXAM</div>
+      <div class="tab-name">SDI 學科測試</div>
+    </div>
+    <div class="tab-arrow">→</div>
+  </a>
+
+  <!-- 順延至第五格 -->
   <div class="tab tab-c">
     <div class="tab-left">
       <div class="tab-en">FINANCE</div>
