@@ -353,6 +353,31 @@ select.cc-fi{padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg 
       </div>
     </div>
 
+    <!-- 小灣潛水池費用 -->
+    <div class="cc-card">
+      <div class="cc-title">小灣潛水池費用</div>
+      <p style="font-size:12px;color:var(--hint);margin-bottom:10px;">若已向學生另收泳池費用，教練欄僅填教練人數即可</p>
+      <div class="ins-row" style="margin-bottom:10px;">
+        <span>學生</span>
+        <input type="number" class="cc-fi" id="pool-s" min="0" value="1" style="width:60px;" oninput="ccUpdatePool()">
+        <span>人 × 300元</span>
+      </div>
+      <div class="ins-row" style="margin-bottom:10px;">
+        <span>教練</span>
+        <input type="number" class="cc-fi" id="pool-c" min="0" value="1" style="width:60px;" oninput="ccUpdatePool()">
+        <span>人 × 240元</span>
+      </div>
+      <div class="ins-row" style="margin-bottom:10px;">
+        <span>停車費</span>
+        <input type="number" class="cc-fi" id="pool-park" min="0" value="40" style="width:80px;" oninput="ccUpdatePool()">
+        <span>元</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border);margin-top:4px;">
+        <span style="font-size:13px;color:var(--muted);">小灣費用合計</span>
+        <span style="font-weight:700;color:var(--teal);" id="pool-total">580 元</span>
+      </div>
+    </div>
+
     <!-- 跟課教練 -->
     <div class="cc-card">
       <div class="cc-title">跟課教練</div>
@@ -897,7 +922,7 @@ function openCalc() {
   document.getElementById('bu').disabled = true;
   document.getElementById('bu').className = 'btn-use';
   document.getElementById('bu').textContent = '請先完成上方試算';
-  ccRenderCourses(); ccUpdateTuition(); ccRenderAddon(); ccUpdateNames(); ccUpdateIns(); ccUpdateSummary(); ccRenderTanks(); ccRenderAssists(); ccRenderMainCoach();
+  ccRenderCourses(); ccUpdateTuition(); ccRenderAddon(); ccUpdateNames(); ccUpdateIns(); ccUpdatePool(); ccUpdateSummary(); ccRenderTanks(); ccRenderAssists(); ccRenderMainCoach();
   document.getElementById('calc-scroll').scrollTop = 0;
 }
 function closeCalc() { document.getElementById('calc-ov').classList.add('hidden'); }
@@ -970,6 +995,9 @@ function ccUpdateSummary() {
 }
 function ccUpdateNames() {
   var n = parseInt(document.getElementById('cc-sc').value)||1;
+  // Auto-sync pool student count
+  var poolS = document.getElementById('pool-s');
+  if (poolS) { poolS.value = n; ccUpdatePool(); }
   var c = document.getElementById('cc-names');
   var existing = Array.from(c.querySelectorAll('[data-sname]')).map(function(e){ return e.value; });
   c.innerHTML = '';
@@ -985,6 +1013,13 @@ function ccUpdateIns() {
   var s = parseInt(document.getElementById('ins-s').value)||0;
   var d = parseInt(document.getElementById('ins-d').value)||0;
   document.getElementById('ins-total').textContent = (s*d*INS).toLocaleString() + ' 元';
+}
+function ccUpdatePool() {
+  var s = parseInt(document.getElementById('pool-s').value)||0;
+  var c = parseInt(document.getElementById('pool-c').value)||0;
+  var park = parseInt(document.getElementById('pool-park').value)||0;
+  var total = s*300 + c*240 + park;
+  document.getElementById('pool-total').textContent = total.toLocaleString() + ' 元';
 }
 function ccRenderMainCoach() {
   var area = document.getElementById('main-coach-tags'); if (!area) return;
@@ -1081,6 +1116,10 @@ function ccCalculate() {
     var parts = (tp.days||[]).map(function(day){ return (day.date||'—')+' '+day.count+'支'+(day.nitrox?' (高氧)':''); });
     if (parts.length) tankLines.push(tname+'：'+parts.join('、'));
   });
+  var poolS = parseInt(document.getElementById('pool-s').value)||0;
+  var poolC = parseInt(document.getElementById('pool-c').value)||0;
+  var poolPark = parseInt(document.getElementById('pool-park').value)||0;
+  var poolCost = poolS*300 + poolC*240 + poolPark;
   var assistTotal = 0, assistData = [];
   ccAssists.forEach(function(ac) {
     var name = ac.name === '__other__' ? (ac.customName||'教練') : ac.name;
@@ -1088,7 +1127,7 @@ function ccCalculate() {
     assistTotal += fee;
     assistData.push({name:name, calm:ac.calm, open:ac.open, fee:fee});
   });
-  var totalCost = material + nxMatPADI + nxMatSDI + insurance + tankCost + assistTotal;
+  var totalCost = material + nxMatPADI + nxMatSDI + insurance + tankCost + poolCost + assistTotal;
   var net = income - totalCost;
   var mainWage = Math.round(Math.max(net, 0) * 0.6);
   var mainName = ccMainCoach || '教學教練';
@@ -1117,6 +1156,7 @@ function ccCalculate() {
     + (nxMatSDI  ? rr('SDI高氧教材 × '+sc+' 人',  nxMatSDI.toLocaleString()+' 元')  : '')
     + rr('氣瓶' + (tankLines.length ? ' — '+tankLines.join(' / ') : ''), (tankCost||0).toLocaleString()+' 元')
     + rr('保險（'+insS+'人 × '+insD+'天）', insurance.toLocaleString()+' 元')
+    + (poolCost > 0 ? rr('小灣泳池（學生'+poolS+'人＋教練'+poolC+'人）＋停車'+poolPark+'元', poolCost.toLocaleString()+' 元') : '')
     + assistData.map(function(a){ return rr('跟課：'+a.name+'（平靜 '+a.calm+' 人＋開放 '+a.open+' 支）', a.fee.toLocaleString()+' 元'); }).join('')
     + rr('成本合計', totalCost.toLocaleString()+' 元', true)
     + rr('淨利（收入 − 成本）', net.toLocaleString()+' 元') + '</div>';
