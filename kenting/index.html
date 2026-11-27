@@ -875,7 +875,7 @@ function markPaid() {
   document.querySelectorAll('.pay-item').forEach(function(r){ if (r.querySelector('.chk.on')) toMark.push({id:r.dataset.id, type:r.dataset.type}); });
   if (!toMark.length) { showToast('請先勾選結算項目'); return; }
   batchCounter++;
-  var batchId = 'b' + batchCounter;
+  var batchId = 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); // 不重複的結清編號
   var paidDate = today;
   toMark.forEach(function(item) {
     var arr = item.type === 'w' ? S.wr : S.er;
