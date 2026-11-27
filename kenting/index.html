@@ -32,6 +32,7 @@ header h1{font-size:22px;font-weight:600;}
 .pbtn.on{background:var(--teal-l);border-color:var(--teal);color:var(--teal-d);}
 input,select{font-family:inherit;}
 .fi{width:100%;padding:12px 14px;border:1px solid var(--border2);border-radius:var(--r);font-size:20px;color:var(--text);background:#fff;-webkit-appearance:none;appearance:none;}
+select.fi{padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a7080' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
 .fi:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,110,86,.1);}
 .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
 .tbtn{padding:13px 8px;border:1px solid var(--border2);border-radius:var(--r);background:#fff;font-size:17px;font-weight:500;cursor:pointer;color:var(--text);text-align:center;line-height:1.4;}
@@ -238,8 +239,11 @@ select.cc-fi{padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg 
       <div><label>日期</label><input type="date" class="cc-fi" id="ed" style="width:100%;"></div>
       <div><label>金額（元）</label><input type="number" class="cc-fi" id="ea" placeholder="0" style="width:100%;"></div>
     </div>
-    <div class="fg"><div class="card-title" style="margin-bottom:6px;">項目說明</div>
-      <input type="text" class="fi" id="edesc" placeholder="例：機車加油、清潔用品…"></div>
+    <div class="fg"><div class="card-title" style="margin-bottom:6px;">類別／項目</div>
+      <select class="fi" id="ecat" onchange="fillEItem()"><option value="">載入中…</option></select>
+      <select class="fi" id="eitem" style="margin-top:8px;"><option value="">請先選類別</option></select></div>
+    <div class="fg"><div class="card-title" style="margin-bottom:6px;">補充說明（選填）</div>
+      <input type="text" class="fi" id="edesc" placeholder="例：加滿、清潔用品…"></div>
     <div class="upload-box" id="ub" onclick="document.getElementById('fi-inp').click()">
       📎 上傳收據（選填）<br><small style="font-size:11px;">付款後自動刪除</small>
     </div>
@@ -808,9 +812,12 @@ function handleFile(inp) {
 }
 function addExp() {
   var amt = parseFloat(document.getElementById('ea').value);
-  var desc = document.getElementById('edesc').value.trim();
+  var extra = document.getElementById('edesc').value.trim();
+  var lcat = document.getElementById('ecat').value, litem = document.getElementById('eitem').value;
   if (!amt || amt <= 0) { showToast('請填入金額'); return; }
-  if (!desc) { showToast('請填入項目說明'); return; }
+  if (!lcat || !litem) { showToast('請選擇類別與項目'); return; }
+  if (litem === '其他' && !extra) { showToast('選「其他」請在補充說明寫明內容'); return; }
+  var desc = litem + (extra ? ' ' + extra : '');
   var erec = {
     id: Date.now(), person: S.ep, desc: desc, amount: amt,
     date: document.getElementById('ed').value || today,
@@ -821,10 +828,12 @@ function addExp() {
   sbFetch('expenses', 'POST', {
     id: String(erec.id), person: erec.person, desc: erec.desc,
     amount: erec.amount, date: erec.date, note: erec.note||'',
-    paid: false, file_name: erec.file||null
-  }).catch(function(e){ console.error('addExp sync', e); });
+    paid: false, file_name: erec.file||null,
+    ledger_category: lcat, ledger_item: litem
+  }).catch(function(e){ console.error('addExp sync', e); showToast('代墊沒有成功儲存，請重新整理後再試'); });
   showToast('已新增代墊記錄');
   document.getElementById('ea').value = ''; document.getElementById('edesc').value = ''; document.getElementById('en').value = '';
+  document.getElementById('ecat').value = ''; fillEItem();
   document.getElementById('ub').innerHTML = '📎 上傳收據（選填）<br><small style="font-size:11px;">付款後自動刪除</small>';
   S.file = null; renderExp();
 }
@@ -1276,6 +1285,39 @@ function sbFetch(path, method, body) {
   });
 }
 
+// ── 代墊的類別／項目選單（讀自收支表，兩邊保持一致） ──
+var EXP_OPTS = null;
+function loadExpOpts() {
+  sbFetch('rpc/ledger_expense_options', 'POST', {}).then(function(rows) {
+    var m = {}, order = [];
+    (rows || []).forEach(function(r) {
+      if (!m[r.category]) { m[r.category] = []; order.push(r.category); }
+      m[r.category].push(r.item);
+    });
+    EXP_OPTS = { map: m, order: order };
+    fillECat();
+  }).catch(function(err) {
+    console.error('loadExpOpts', err);
+    EXP_OPTS = null;
+    document.getElementById('ecat').innerHTML = '<option value="">類別載入失敗，請重新整理</option>';
+  });
+}
+function escOpt(t) { return String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fillECat() {
+  var el = document.getElementById('ecat');
+  if (!EXP_OPTS) return;
+  el.innerHTML = '<option value="">請選擇類別</option>' + EXP_OPTS.order.map(function(c){
+    return '<option value="' + escOpt(c) + '">' + escOpt(c) + '</option>';
+  }).join('');
+  fillEItem();
+}
+function fillEItem() {
+  var c = document.getElementById('ecat').value, el = document.getElementById('eitem');
+  var L = (EXP_OPTS && c && EXP_OPTS.map[c]) || [];
+  el.innerHTML = c ? L.map(function(i){ return '<option value="' + escOpt(i) + '">' + escOpt(i) + '</option>'; }).join('')
+                    : '<option value="">請先選類別</option>';
+}
+
 function loadData() {
   showSyncBar('載入中…');
   Promise.all([
@@ -1329,6 +1371,7 @@ function hideSyncBar() {
 document.getElementById('wd').value = today;
 document.getElementById('ed').value = today;
 loadData();
+loadExpOpts();
 </script>
 <!-- 編輯記錄 modal -->
 <div class="modal-ov hidden" id="modal-edit">
